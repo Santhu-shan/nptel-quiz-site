@@ -1,73 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import './Avatar.css';
 
-function Avatar({ status, streak, totalWrong, correctAnswer }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [message, setMessage] = useState('');
-  const [mood, setMood] = useState('idle'); // idle, happy, sad, shocked
+function Avatar({ status, streak, totalWrong, correctAnswer, timeOnQuestion }) {
+  const [isVisible, setIsVisible] = useState(true);
+  const [message, setMessage] = useState('Hey! Ready to study? 🐶');
+  const [mood, setMood] = useState('idle'); // idle, happy, sad, shocked, walking
 
   useEffect(() => {
-    if (status === 'idle') {
-      setIsVisible(false);
-      return;
-    }
-
-    setIsVisible(true);
-
+    // Handling status changes (correct/wrong)
     if (status === 'correct') {
-      setMood(streak > 3 ? 'shocked' : 'happy');
+      setMood(streak > 2 ? 'shocked' : 'happy');
       
       const happyMessages = [
+        "paravala hey, nala padichu erukan pola ✨",
         "Woof! Right on the money! 🐾",
         "Good human! Have a treat! 🦴",
-        "You're top dog! 🐕",
-        "Such smart! Much correct! Wow! ✨",
-        "*Tail wags aggressively* 🐶💨"
+        "You're top dog! 🐕"
       ];
       
       const streakMessages = [
-        `Arooo! ${streak} in a row! You're on fire! 🐺🔥`,
-        `Unstoppable! Streak of ${streak}! Fetch that A+! 🎾`,
-        `Best in Show! ${streak} correct! 🏆🐾`
+        "pinnran la! Unstoppable! 🔥",
+        `Arooo! ${streak} in a row! 🏆🐾`,
+        "Sema! Keep going! 🚀"
       ];
 
-      setMessage(streak >= 3 ? streakMessages[Math.floor(Math.random() * streakMessages.length)] : happyMessages[Math.floor(Math.random() * happyMessages.length)]);
+      setMessage(streak >= 2 ? streakMessages[Math.floor(Math.random() * streakMessages.length)] : happyMessages[Math.floor(Math.random() * happyMessages.length)]);
+      
+      const timer = setTimeout(() => setMood('idle'), 3000);
+      return () => clearTimeout(timer);
     } 
     else if (status === 'wrong') {
       setMood('sad');
       
       const wrongMessages = [
-        `Ruh-roh! The answer was actually "${correctAnswer}". 🐶`,
-        `Barking up the wrong tree! It's "${correctAnswer}". 🌳`,
-        `*Whines* Nope! It was "${correctAnswer}". Keep trying! 🥺`,
+        "ethu kuda theriyatha? 😅",
+        `Ruh-roh! It was actually "${correctAnswer}". 🐶`,
+        "Enna boss ipdi panreengale! 📉"
       ];
 
       const manyWrongsMessages = [
-        `Did a cat answer that? It's "${correctAnswer}"! 🐈😂`,
-        `You're in the doghouse now! It was "${correctAnswer}". 🛖`,
-        `*Tilts head* Are you just guessing? It's "${correctAnswer}". 🐶❓`
+        "olunga padichitu vanthu eluthu pooo! 🛖",
+        "Ayyayyo! Mudila... 🐈😂",
+        "Konjam focus pannunga! 📚"
       ];
 
-      setMessage(totalWrong >= 3 ? manyWrongsMessages[Math.floor(Math.random() * manyWrongsMessages.length)] : wrongMessages[Math.floor(Math.random() * wrongMessages.length)]);
+      setMessage(totalWrong >= 2 ? manyWrongsMessages[Math.floor(Math.random() * manyWrongsMessages.length)] : wrongMessages[Math.floor(Math.random() * wrongMessages.length)]);
+      
+      const timer = setTimeout(() => setMood('idle'), 3000);
+      return () => clearTimeout(timer);
     }
-
-    // Auto hide after 4 seconds
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, 4000);
-
-    return () => clearTimeout(timer);
   }, [status, streak, totalWrong, correctAnswer]);
 
-  if (!isVisible) return null;
+  // Handle Idle/Walking logic
+  useEffect(() => {
+    if (status === 'idle') {
+      if (timeOnQuestion > 15) {
+        setMood('walking');
+        setMessage("time hachu, answer theriyala ya? 🚶‍♂️🐶");
+      } else if (timeOnQuestion > 30) {
+        setMessage("I'm waiting... still waiting... 😴");
+      } else if (timeOnQuestion === 0) {
+        setMood('idle');
+        setMessage("Next question, let's go! 🐾");
+      }
+    }
+  }, [timeOnQuestion, status]);
 
   return (
-    <div className="avatar-container animate-slide-up">
-      <div className="chat-bubble glass-panel">
-        {message}
-      </div>
-      <div className={`avatar-icon mood-${mood}`}>
-        🐶
+    <div className="avatar-top-container animate-fade-in">
+      <div className={`avatar-wrapper mood-${mood}`}>
+        <div className="avatar-icon">🐶</div>
+        <div className="chat-bubble-top glass-panel">
+          {message}
+        </div>
       </div>
     </div>
   );

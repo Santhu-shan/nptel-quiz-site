@@ -17,6 +17,7 @@ function Quiz({ subject, onComplete, onExit }) {
   const [totalWrong, setTotalWrong] = useState(0);
   const [avatarStatus, setAvatarStatus] = useState('idle');
   const [flashStatus, setFlashStatus] = useState(''); // 'success', 'error', or ''
+  const [timeOnQuestion, setTimeOnQuestion] = useState(0);
 
   // Handle Shuffle
   useEffect(() => {
@@ -34,12 +35,30 @@ function Quiz({ subject, onComplete, onExit }) {
     setStreak(0);
     setTotalWrong(0);
     setAvatarStatus('idle');
+    setTimeOnQuestion(0);
   }, [isShuffled, subject]);
+
+  // Reset time on question
+  useEffect(() => {
+    setTimeOnQuestion(0);
+    setAvatarStatus('idle');
+  }, [currentQuestionIndex]);
+
+  // Time on question timer
+  useEffect(() => {
+    let timer;
+    if (!isAnswered) {
+      timer = setInterval(() => {
+        setTimeOnQuestion(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isAnswered, currentQuestionIndex]);
 
   const question = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex) / questions.length) * 100;
 
-  // Timer logic
+  // Global Timer logic
   useEffect(() => {
     if (timeLeft <= 0) {
       handleComplete();
@@ -88,43 +107,30 @@ function Quiz({ subject, onComplete, onExit }) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedOption(null);
       setIsAnswered(false);
-      setAvatarStatus('idle'); // Reset avatar for next question
+      setAvatarStatus('idle');
     } else {
       handleComplete();
     }
   }, [currentQuestionIndex, questions.length, handleComplete]);
 
-  // Keyboard Shortcuts for Speed Studying
+  // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Prevent shortcut interference if typing in an input (though we have none)
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
       if (!isAnswered) {
-        // Numbers 1-4
-        if (e.key === '1') handleOptionSelect(0);
-        if (e.key === '2') handleOptionSelect(1);
-        if (e.key === '3') handleOptionSelect(2);
-        if (e.key === '4') handleOptionSelect(3);
-
-        // Letters a, b, c, d
-        if (e.key.toLowerCase() === 'a') handleOptionSelect(0);
-        if (e.key.toLowerCase() === 'b') handleOptionSelect(1);
-        if (e.key.toLowerCase() === 'c') handleOptionSelect(2);
-        if (e.key.toLowerCase() === 'd') handleOptionSelect(3);
-      } else {
-        // Space or Enter to go to next
-        if (e.key === ' ' || e.key === 'Enter') {
-          e.preventDefault(); // Prevent scrolling on space
-          handleNext();
+        if (['1','2','3','4'].includes(e.key)) handleOptionSelect(parseInt(e.key) - 1);
+        if (['a','b','c','d'].includes(e.key.toLowerCase())) {
+          const idx = e.key.toLowerCase().charCodeAt(0) - 97;
+          handleOptionSelect(idx);
         }
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        handleNext();
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isAnswered, handleOptionSelect, handleNext]);
-
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -136,21 +142,26 @@ function Quiz({ subject, onComplete, onExit }) {
 
   return (
     <div className={`quiz-container page-transition ${flashStatus}`}>
+      {/* Avatar at the top */}
+      <Avatar 
+        status={avatarStatus} 
+        streak={streak} 
+        totalWrong={totalWrong} 
+        correctAnswer={question.options[question.correctAnswer]} 
+        timeOnQuestion={timeOnQuestion}
+      />
+
       <div className="quiz-header-wrapper glass-panel">
         <div className="quiz-header-top">
           <h2>{subject.title}</h2>
           <div className="header-controls">
             <label className="toggle-container">
-              <input 
-                type="checkbox" 
-                checked={isShuffled}
-                onChange={(e) => setIsShuffled(e.target.checked)}
-              />
+              <input type="checkbox" checked={isShuffled} onChange={(e) => setIsShuffled(e.target.checked)} />
               <span className="toggle-slider"></span>
               <span className="toggle-label">Shuffle</span>
             </label>
             <div className="timer">
-              <span className="timer-icon">⏱️</span>
+              <span>⏱️</span>
               <span className={timeLeft < 60 ? 'text-error' : ''}>{formatTime(timeLeft)}</span>
             </div>
             <button className="btn-outline btn-sm mobile-hide" onClick={onExit}>Exit</button>
@@ -163,73 +174,40 @@ function Quiz({ subject, onComplete, onExit }) {
         <div className="quiz-meta">
           <span>Q {currentQuestionIndex + 1} / {questions.length}</span>
           <span className="score-badge">Score: {score}</span>
-          <button className="btn-outline btn-sm mobile-show" onClick={onExit} style={{display: 'none'}}>Exit</button>
         </div>
       </div>
 
       <div className="question-card glass-panel" key={currentQuestionIndex}>
         <h3 className="question-text">{question.text}</h3>
-        
         <div className="options-grid">
           {question.options.map((option, index) => {
-            let optionClass = 'option-btn stagger-item';
-            
+            let cl = 'option-btn stagger-item';
             if (isAnswered) {
-              if (index === question.correctAnswer) {
-                optionClass += ' correct';
-              } else if (index === selectedOption) {
-                optionClass += ' wrong';
-              } else {
-                optionClass += ' disabled';
-              }
-            } else if (selectedOption === index) {
-              optionClass += ' selected';
-            }
+              if (index === question.correctAnswer) cl += ' correct';
+              else if (index === selectedOption) cl += ' wrong';
+              else cl += ' disabled';
+            } else if (selectedOption === index) cl += ' selected';
 
             return (
-              <button
-                key={index}
-                className={optionClass}
-                style={{ animationDelay: `${0.1 + (index * 0.05)}s` }}
-                onClick={() => handleOptionSelect(index)}
-                disabled={isAnswered}
-              >
+              <button key={index} className={cl} onClick={() => handleOptionSelect(index)} disabled={isAnswered}>
                 <div className="option-content">
                   <span className="option-letter">{String.fromCharCode(65 + index)}</span>
                   <span className="option-text">{option}</span>
                 </div>
-                
-                {isAnswered && index === question.correctAnswer && (
-                  <span className="status-icon success-pop">✓</span>
-                )}
-                {isAnswered && index === selectedOption && index !== question.correctAnswer && (
-                  <span className="status-icon error-pop">✗</span>
-                )}
+                {isAnswered && index === question.correctAnswer && <span className="status-icon success-pop">✓</span>}
+                {isAnswered && index === selectedOption && index !== question.correctAnswer && <span className="status-icon error-pop">✗</span>}
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="quiz-footer stagger-item" style={{ animationDelay: '0.4s' }}>
-        <div className="shortcut-hint">
-          {isAnswered ? 'Press Space to continue' : 'Press 1-4 or A-D to select'}
-        </div>
-        <button 
-          className="btn-primary next-btn" 
-          onClick={handleNext}
-          disabled={!isAnswered}
-        >
+      <div className="quiz-footer stagger-item">
+        <div className="shortcut-hint">{isAnswered ? 'Press Space to continue' : 'Press 1-4 or A-D to select'}</div>
+        <button className="btn-primary next-btn" onClick={handleNext} disabled={!isAnswered}>
           {currentQuestionIndex === questions.length - 1 ? 'Submit Quiz' : 'Next Question'}
         </button>
       </div>
-
-      <Avatar 
-        status={avatarStatus} 
-        streak={streak} 
-        totalWrong={totalWrong} 
-        correctAnswer={question.options[question.correctAnswer]} 
-      />
     </div>
   );
 }

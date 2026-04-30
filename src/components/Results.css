@@ -1,0 +1,179 @@
+.results-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0 4rem;
+  gap: 3rem;
+  width: 100%;
+}
+
+.results-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.results-card h2 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subject-title {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+}
+
+.score-ring-container {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin-bottom: 2rem;
+}
+
+.score-ring {
+  transform: rotate(-90deg);
+}
+
+.ring-progress {
+  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+  stroke-linecap: round;
+}
+
+.score-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.percentage {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+}
+
+.fraction {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.feedback-text {
+  font-size: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.btn-lg {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+}
+
+/* Mistakes Review Styles */
+.mistakes-review {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mistakes-review h3 {
+  font-size: 2rem;
+  text-align: center;
+}
+
+.mistakes-review .subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.mistakes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mistake-card {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mistake-card h4 {
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+
+.mistake-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mistake-options .option {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.mistake-options .wrong {
+  border-left: 4px solid var(--error);
+}
+
+.mistake-options .correct {
+  border-left: 4px solid var(--success);
+}
+
+.mistake-options .label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mistake-options .text {
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.cross-reference {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+.cross-reference .icon {
+  font-size: 1.5rem;
+}
+
+.cross-reference strong {
+  color: var(--primary);
+}
+
+.cross-reference em {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--text-primary);
+  font-style: normal;
+  line-height: 1.4;
+}

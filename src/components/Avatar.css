@@ -4,7 +4,6 @@
   justify-content: center;
   padding: 1rem 0;
   z-index: 1000;
-  pointer-events: none;
 }
 
 .avatar-wrapper {
@@ -12,7 +11,35 @@
   align-items: center;
   gap: 1rem;
   transition: all 0.5s ease;
-  pointer-events: auto;
+}
+
+.avatar-clickable {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-clickable:hover {
+  transform: scale(1.1);
+}
+
+.avatar-clickable:active {
+  transform: scale(0.95);
+}
+
+.lang-indicator {
+  position: absolute;
+  bottom: -5px;
+  background: var(--primary);
+  color: white;
+  font-size: 0.6rem;
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-weight: 800;
+  border: 1px solid white;
 }
 
 .avatar-icon {
@@ -29,15 +56,54 @@
   color: var(--text-primary);
   border-radius: var(--radius-md);
   border-top-left-radius: 4px;
-  max-width: 280px;
+  max-width: 350px;
   position: relative;
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
   animation: bubblePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chat-content {
+  flex: 1;
+}
+
+.speaker-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.speaker-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.speaker-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+.speaker-btn.speaking {
+  animation: pulse-speaker 1s infinite;
+}
+
+@keyframes pulse-speaker {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* Mac-style glass refinement for bubble */
 .chat-bubble-top.glass-panel {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
@@ -61,20 +127,20 @@
 }
 
 @keyframes walk {
-  0% { transform: translateX(-20px); }
-  50% { transform: translateX(20px); }
-  100% { transform: translateX(-20px); }
+  0% { transform: translateX(-30px); }
+  50% { transform: translateX(30px); }
+  100% { transform: translateX(-30px); }
 }
 
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-12px); }
 }
 
 @keyframes shake {
   0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-10deg); }
-  75% { transform: rotate(10deg); }
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
 }
 
 @keyframes bubblePop {
@@ -91,6 +157,7 @@
   }
   .chat-bubble-top {
     font-size: 0.85rem;
-    max-width: 200px;
+    max-width: 250px;
+    padding: 0.6rem 1rem;
   }
 }

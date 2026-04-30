@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import Avatar from './Avatar';
 import './Analytics.css';
 
 function Analytics({ history, onBack, clearHistory }) {
@@ -11,7 +12,6 @@ function Analytics({ history, onBack, clearHistory }) {
     const totalCorrect = history.reduce((acc, curr) => acc + curr.score, 0);
     const averageScore = Math.round((totalCorrect / totalQuestions) * 100) || 0;
 
-    // Group by Subject to find weak areas
     const subjectMap = {};
     history.forEach(entry => {
       if (!subjectMap[entry.subjectTitle]) {
@@ -31,7 +31,6 @@ function Analytics({ history, onBack, clearHistory }) {
       };
     });
 
-    // Sort by lowest average to find weak areas
     subjectStats.sort((a, b) => a.avg - b.avg);
 
     return { totalQuizzes, totalQuestions, averageScore, subjectStats };
@@ -40,6 +39,7 @@ function Analytics({ history, onBack, clearHistory }) {
   if (!stats) {
     return (
       <div className="analytics-container page-transition">
+        <Avatar type="analytics" stats={{ averageScore: 0 }} />
         <div className="header stagger-item">
           <h1 className="text-gradient">My Analytics</h1>
           <p className="subtitle">Track your performance over time</p>
@@ -58,6 +58,8 @@ function Analytics({ history, onBack, clearHistory }) {
 
   return (
     <div className="analytics-container page-transition">
+      <Avatar type="analytics" stats={stats} />
+      
       <div className="header stagger-item">
         <h1 className="text-gradient">My Analytics</h1>
         <p className="subtitle">Your private study performance tracking</p>
@@ -88,11 +90,9 @@ function Analytics({ history, onBack, clearHistory }) {
       </div>
 
       <div className="analytics-sections">
-        {/* Weak Areas Section */}
         <div className="section-card glass-panel stagger-item" style={{ animationDelay: '0.3s' }}>
           <h3>Areas for Improvement</h3>
           <p className="section-desc">Based on your past quizzes, these are your weakest subjects.</p>
-          
           <div className="weak-areas-list">
             {stats.subjectStats.slice(0, 3).map((sub, idx) => (
               <div key={idx} className="weak-area-item">
@@ -108,7 +108,6 @@ function Analytics({ history, onBack, clearHistory }) {
           </div>
         </div>
 
-        {/* Recent History Section */}
         <div className="section-card glass-panel stagger-item" style={{ animationDelay: '0.35s' }}>
           <h3>Recent Quiz History</h3>
           <div className="history-list">
@@ -117,7 +116,6 @@ function Analytics({ history, onBack, clearHistory }) {
               const date = new Date(entry.date).toLocaleDateString(undefined, {
                 month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
               });
-
               return (
                 <div key={entry.id || idx} className="history-item">
                   <div className="history-info">
